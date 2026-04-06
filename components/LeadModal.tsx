@@ -75,6 +75,17 @@ export default function LeadModal({ lead, allLeads, onClose, onUpdate }: Props) 
     setNoteText("");
   };
 
+  const handleDelete = async () => {
+  if (!confirm(`Are you sure you want to delete ${lead.brand_name}? This cannot be undone.`)) return;
+  try {
+    await fetch("/api/leads/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-token": localStorage.getItem("admin_token") || "" },
+      body: JSON.stringify({ id: lead.id }),
+    });
+    onUpdate({ ...lead, id: "DELETED" });
+  } catch (_) {}
+};
   const save = async () => {
     setSaving(true);
     const newEvent: TimelineEvent = {
@@ -206,6 +217,10 @@ export default function LeadModal({ lead, allLeads, onClose, onUpdate }: Props) 
 
               <button onClick={save} disabled={saving}
                 style={{ width: "100%", padding: 13, borderRadius: 12, background: `linear-gradient(135deg,${BRAND},#A78BFA)`, color: "white", border: "none", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
+                <button onClick={handleDelete}
+  style={{ width: "100%", padding: 13, borderRadius: 12, background: "#FEF2F2", color: "#DC2626", border: "2px solid #FCA5A5", fontWeight: 700, fontSize: 15, cursor: "pointer", marginBottom: 10 }}>
+  🗑 Delete Lead
+</button>
                 {saving ? "Saving..." : "💾 Save Changes"}
               </button>
             </>

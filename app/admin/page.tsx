@@ -129,6 +129,11 @@ export default function AdminPage() {
   }, [token, fetchLeads]);
 
   const updateLead = async (updated: Lead) => {
+    if (updated.id === "DELETED") {
+  setLeads(prev => prev.filter(l => l.id !== lead.id));
+  setSelectedLead(null);
+  return;
+}
     setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
     setSelectedLead(null);
     try {
