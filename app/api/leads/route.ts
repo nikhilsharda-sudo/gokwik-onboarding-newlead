@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllLeads } from "@/lib/leads";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const token = req.headers.get("x-admin-token");

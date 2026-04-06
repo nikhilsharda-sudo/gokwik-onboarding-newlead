@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import { Lead, TimelineEvent, Note } from "@/lib/leads";
+import { Lead, Note, TimelineEvent } from "@/lib/leads";
 
-const BRAND = "#6C3BFF";
-const GREEN = "#00C48C";
+const BRAND  = "#6C3BFF";
+const GREEN  = "#00C48C";
 const YELLOW = "#FFB800";
 const ACCENT = "#FF6B6B";
 
@@ -18,6 +18,7 @@ const PRIORITY_COLORS: Record<string, { bg: string; text: string }> = {
   Medium: { bg: "#FFF7E6", text: "#D46B08" },
   Low:    { bg: "#F6FFED", text: "#389E0D" },
 };
+
 const STATUS_OPTIONS   = ["New", "Contacted", "Qualified", "Rejected"];
 const PRIORITY_OPTIONS = ["High", "Medium", "Low"];
 
@@ -25,7 +26,7 @@ function ScoreRing({ score }: { score: number }) {
   const color = score >= 70 ? GREEN : score >= 40 ? YELLOW : ACCENT;
   const r = 28, cx = 34, cy = 34;
   const circ = 2 * Math.PI * r;
-  const dash = (score / 100) * circ;
+  const dash  = (score / 100) * circ;
   return (
     <div style={{ position: "relative", width: 68, height: 68, flexShrink: 0 }}>
       <svg width="68" height="68">
@@ -42,25 +43,25 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
-export default function LeadModal({
-  lead, allLeads, onClose, onUpdate,
-}: {
+interface Props {
   lead: Lead;
   allLeads: Lead[];
   onClose: () => void;
   onUpdate: (l: Lead) => void;
-}) {
-  const [tab,      setTab]      = useState<"details" | "timeline" | "notes">("details");
-  const [status,   setStatus]   = useState(lead.status);
-  const [priority, setPriority] = useState(lead.priority || "");
-  const [noteText, setNoteText] = useState("");
-  const [saving,   setSaving]   = useState(false);
+}
+
+export default function LeadModal({ lead, allLeads, onClose, onUpdate }: Props) {
+  const [tab,       setTab]       = useState<"details" | "timeline" | "notes">("details");
+  const [status,    setStatus]    = useState<Lead["status"]>(lead.status);
+  const [priority,  setPriority]  = useState<Lead["priority"]>(lead.priority || "");
+  const [noteText,  setNoteText]  = useState("");
+  const [saving,    setSaving]    = useState(false);
   const [localLead, setLocalLead] = useState<Lead>(lead);
 
   const isDup = allLeads.some(
     (l) => l.id !== lead.id &&
       (l.email.toLowerCase() === lead.email.toLowerCase() ||
-        l.brand_name.toLowerCase() === lead.brand_name.toLowerCase())
+       l.brand_name.toLowerCase() === lead.brand_name.toLowerCase())
   );
 
   const addNote = () => {
@@ -70,8 +71,7 @@ export default function LeadModal({
       text: noteText.trim(),
       timestamp: new Date().toISOString(),
     };
-    const updated = { ...localLead, notes: [...(localLead.notes || []), newNote], last_updated: new Date().toISOString() };
-    setLocalLead(updated);
+    setLocalLead(prev => ({ ...prev, notes: [...(prev.notes || []), newNote], last_updated: new Date().toISOString() }));
     setNoteText("");
   };
 
@@ -84,8 +84,8 @@ export default function LeadModal({
     };
     const updated: Lead = {
       ...localLead,
-      status: status as Lead["status"],
-      priority: priority as Lead["priority"],
+      status,
+      priority,
       timeline: [...(localLead.timeline || []), newEvent],
       last_updated: new Date().toISOString(),
     };
@@ -96,23 +96,35 @@ export default function LeadModal({
         body: JSON.stringify(updated),
       });
       onUpdate(updated);
-    } catch (_) { onUpdate(updated); }
+    } catch (_) {
+      onUpdate(updated);
+    }
     setSaving(false);
   };
 
   const fields: [string, string][] = [
-    ["Brand Name", lead.brand_name], ["Website", lead.website],
-    ["Email", lead.email],           ["Mobile", lead.mobile],
-    ["GMV / Month", lead.gmv],       ["Avg Orders / Day", lead.avg_orders],
-    ["AOV", lead.aov],               ["COD %", lead.cod_percent],
-    ["Prepaid %", lead.prepaid_percent], ["Legal Structure", lead.legal_structure],
-    ["Lead Referral", lead.referral],
+    ["Brand Name",       lead.brand_name],
+    ["Website",          lead.website],
+    ["Email",            lead.email],
+    ["Mobile",           lead.mobile],
+    ["GMV / Month",      lead.gmv],
+    ["Avg Orders / Day", lead.avg_orders],
+    ["AOV",              lead.aov],
+    ["COD %",            lead.cod_percent],
+    ["Prepaid %",        lead.prepaid_percent],
+    ["Legal Structure",  lead.legal_structure],
+    ["Lead Referral",    lead.referral],
   ];
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }} onClick={onClose}>
-      <div style={{ background: "white", borderRadius: 24, width: "100%", maxWidth: 600, maxHeight: "92vh", overflowY: "auto", boxShadow: "0 24px 64px rgba(0,0,0,0.25)", animation: "fadeUp 0.3s ease" }} onClick={e => e.stopPropagation()}>
-
+    <div
+      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+      onClick={onClose}
+    >
+      <div
+        style={{ background: "white", borderRadius: 24, width: "100%", maxWidth: 600, maxHeight: "92vh", overflowY: "auto", boxShadow: "0 24px 64px rgba(0,0,0,0.25)", animation: "fadeUp 0.3s ease" }}
+        onClick={e => e.stopPropagation()}
+      >
         {/* Header */}
         <div style={{ background: `linear-gradient(135deg,${BRAND},#A78BFA)`, padding: "20px 24px", borderRadius: "24px 24px 0 0" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -122,7 +134,7 @@ export default function LeadModal({
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ color: "white", fontWeight: 800, fontSize: 18 }}>{lead.brand_name}</div>
                   {isDup && <span style={{ background: "#FFB800", color: "#000", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>⚠️ DUPLICATE</span>}
-                  {lead.score >= 70 && <span style={{ fontSize: 16 }}>🔥</span>}
+                  {(lead.score || 0) >= 70 && <span style={{ fontSize: 16 }}>🔥</span>}
                 </div>
                 <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, marginTop: 3 }}>
                   Submitted {new Date(lead.submitted_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
@@ -138,17 +150,18 @@ export default function LeadModal({
 
           {/* Quick Actions */}
           <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-            <a href={`tel:${lead.mobile}`} style={{ background: "rgba(255,255,255,0.2)", color: "white", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 5 }}>📞 Call</a>
-            <a href={`mailto:${lead.email}`} style={{ background: "rgba(255,255,255,0.2)", color: "white", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 5 }}>✉️ Email</a>
-            <a href={`https://wa.me/${lead.mobile.replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer" style={{ background: "rgba(255,255,255,0.2)", color: "white", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 5 }}>💬 WhatsApp</a>
-            <a href={lead.website} target="_blank" rel="noreferrer" style={{ background: "rgba(255,255,255,0.2)", color: "white", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 5 }}>🌐 Website</a>
+            <a href={`tel:${lead.mobile}`} style={{ background: "rgba(255,255,255,0.2)", color: "white", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>📞 Call</a>
+            <a href={`mailto:${lead.email}`} style={{ background: "rgba(255,255,255,0.2)", color: "white", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>✉️ Email</a>
+            <a href={`https://wa.me/${lead.mobile.replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer" style={{ background: "rgba(255,255,255,0.2)", color: "white", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>💬 WhatsApp</a>
+            <a href={lead.website} target="_blank" rel="noreferrer" style={{ background: "rgba(255,255,255,0.2)", color: "white", padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>🌐 Website</a>
           </div>
         </div>
 
         {/* Tabs */}
         <div style={{ display: "flex", borderBottom: "2px solid #f0f0f0" }}>
           {(["details", "timeline", "notes"] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: "12px", border: "none", background: "white", fontWeight: tab === t ? 700 : 500, color: tab === t ? BRAND : "#888", borderBottom: tab === t ? `2px solid ${BRAND}` : "none", cursor: "pointer", fontSize: 13, textTransform: "capitalize", marginBottom: -2 }}>
+            <button key={t} onClick={() => setTab(t)}
+              style={{ flex: 1, padding: "12px", border: "none", background: "white", fontWeight: tab === t ? 700 : 500, color: tab === t ? BRAND : "#888", borderBottom: tab === t ? `2px solid ${BRAND}` : "none", cursor: "pointer", fontSize: 13, marginBottom: -2 }}>
               {t === "details" ? "📋 Details" : t === "timeline" ? "🕐 Timeline" : `📝 Notes (${(localLead.notes || []).length})`}
             </button>
           ))}
@@ -167,27 +180,32 @@ export default function LeadModal({
                 ))}
               </div>
 
-              {/* Status */}
               <div style={{ marginBottom: 14 }}>
                 <label style={{ fontSize: 13, fontWeight: 700, color: "#555", display: "block", marginBottom: 8 }}>Status</label>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   {STATUS_OPTIONS.map(s => (
-                    <button key={s} onClick={() => setStatus(s)} style={{ padding: "7px 16px", borderRadius: 20, border: `2px solid ${status === s ? STATUS_COLORS[s].dot : "#e0e0e0"}`, background: status === s ? STATUS_COLORS[s].bg : "white", color: status === s ? STATUS_COLORS[s].text : "#888", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{s}</button>
+                    <button key={s} onClick={() => setStatus(s as Lead["status"])}
+                      style={{ padding: "7px 16px", borderRadius: 20, border: `2px solid ${status === s ? STATUS_COLORS[s].dot : "#e0e0e0"}`, background: status === s ? STATUS_COLORS[s].bg : "white", color: status === s ? STATUS_COLORS[s].text : "#888", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                      {s}
+                    </button>
                   ))}
                 </div>
               </div>
 
-              {/* Priority */}
               <div style={{ marginBottom: 20 }}>
                 <label style={{ fontSize: 13, fontWeight: 700, color: "#555", display: "block", marginBottom: 8 }}>Priority</label>
                 <div style={{ display: "flex", gap: 8 }}>
                   {PRIORITY_OPTIONS.map(p => (
-                    <button key={p} onClick={() => setPriority(priority === p ? "" : p)} style={{ padding: "7px 16px", borderRadius: 20, border: `2px solid ${priority === p ? PRIORITY_COLORS[p].text : "#e0e0e0"}`, background: priority === p ? PRIORITY_COLORS[p].bg : "white", color: priority === p ? PRIORITY_COLORS[p].text : "#888", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>{p}</button>
+                    <button key={p} onClick={() => setPriority(priority === p ? "" : p as Lead["priority"])}
+                      style={{ padding: "7px 16px", borderRadius: 20, border: `2px solid ${priority === p ? PRIORITY_COLORS[p].text : "#e0e0e0"}`, background: priority === p ? PRIORITY_COLORS[p].bg : "white", color: priority === p ? PRIORITY_COLORS[p].text : "#888", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                      {p}
+                    </button>
                   ))}
                 </div>
               </div>
 
-              <button onClick={save} disabled={saving} style={{ width: "100%", padding: 13, borderRadius: 12, background: `linear-gradient(135deg,${BRAND},#A78BFA)`, color: "white", border: "none", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
+              <button onClick={save} disabled={saving}
+                style={{ width: "100%", padding: 13, borderRadius: 12, background: `linear-gradient(135deg,${BRAND},#A78BFA)`, color: "white", border: "none", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
                 {saving ? "Saving..." : "💾 Save Changes"}
               </button>
             </>
@@ -200,8 +218,8 @@ export default function LeadModal({
                 <div style={{ textAlign: "center", padding: 32, color: "#ccc", fontSize: 14 }}>No activity yet. Changes will appear here.</div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                  {[...( localLead.timeline || [])].reverse().map((e, i) => (
-                    <div key={i} style={{ display: "flex", gap: 12, paddingBottom: 16, position: "relative" }}>
+                  {[...(localLead.timeline || [])].reverse().map((e, i) => (
+                    <div key={i} style={{ display: "flex", gap: 12, paddingBottom: 16 }}>
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                         <div style={{ width: 10, height: 10, borderRadius: "50%", background: BRAND, flexShrink: 0, marginTop: 4 }} />
                         {i < (localLead.timeline || []).length - 1 && <div style={{ width: 2, flex: 1, background: "#e0e0e0", marginTop: 4 }} />}
@@ -209,7 +227,9 @@ export default function LeadModal({
                       <div style={{ flex: 1, paddingBottom: 8 }}>
                         <div style={{ fontWeight: 700, fontSize: 13, color: "#1a1a2e" }}>{e.action}</div>
                         <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>{e.detail}</div>
-                        <div style={{ fontSize: 11, color: "#bbb", marginTop: 4 }}>{new Date(e.timestamp).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+                        <div style={{ fontSize: 11, color: "#bbb", marginTop: 4 }}>
+                          {new Date(e.timestamp).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -217,7 +237,9 @@ export default function LeadModal({
                     <div style={{ width: 10, height: 10, borderRadius: "50%", background: GREEN, flexShrink: 0, marginTop: 4 }} />
                     <div>
                       <div style={{ fontWeight: 700, fontSize: 13, color: "#1a1a2e" }}>Lead Created</div>
-                      <div style={{ fontSize: 11, color: "#bbb", marginTop: 4 }}>{new Date(lead.submitted_at).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
+                      <div style={{ fontSize: 11, color: "#bbb", marginTop: 4 }}>
+                        {new Date(lead.submitted_at).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -229,15 +251,19 @@ export default function LeadModal({
           {tab === "notes" && (
             <div>
               <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-                <textarea value={noteText} onChange={e => setNoteText(e.target.value)} rows={2} placeholder="Add a note..."
+                <textarea value={noteText} onChange={e => setNoteText(e.target.value)} rows={2}
+                  placeholder="Add a note..."
                   style={{ flex: 1, padding: "10px 14px", borderRadius: 12, border: "2px solid #e0e0e0", fontSize: 14, resize: "none", fontFamily: "inherit" }} />
-                <button onClick={addNote} style={{ padding: "0 16px", borderRadius: 12, background: `linear-gradient(135deg,${BRAND},#A78BFA)`, color: "white", border: "none", fontWeight: 700, fontSize: 18, cursor: "pointer", alignSelf: "stretch" }}>+</button>
+                <button onClick={addNote}
+                  style={{ padding: "0 16px", borderRadius: 12, background: `linear-gradient(135deg,${BRAND},#A78BFA)`, color: "white", border: "none", fontWeight: 700, fontSize: 18, cursor: "pointer", alignSelf: "stretch" }}>
+                  +
+                </button>
               </div>
               {(localLead.notes || []).length === 0 ? (
                 <div style={{ textAlign: "center", padding: 32, color: "#ccc", fontSize: 14 }}>No notes yet. Add your first note above.</div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {[...(localLead.notes || [])].reverse().map((n) => (
+                  {[...(localLead.notes || [])].reverse().map(n => (
                     <div key={n.id} style={{ background: "#f8f7ff", borderRadius: 12, padding: "12px 16px", borderLeft: `3px solid ${BRAND}` }}>
                       <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5 }}>{n.text}</div>
                       <div style={{ fontSize: 11, color: "#bbb", marginTop: 6 }}>
@@ -248,7 +274,8 @@ export default function LeadModal({
                 </div>
               )}
               {(localLead.notes || []).length > 0 && (
-                <button onClick={save} style={{ width: "100%", marginTop: 16, padding: 12, borderRadius: 12, background: `linear-gradient(135deg,${BRAND},#A78BFA)`, color: "white", border: "none", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                <button onClick={save}
+                  style={{ width: "100%", marginTop: 16, padding: 12, borderRadius: 12, background: `linear-gradient(135deg,${BRAND},#A78BFA)`, color: "white", border: "none", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
                   💾 Save Notes
                 </button>
               )}
