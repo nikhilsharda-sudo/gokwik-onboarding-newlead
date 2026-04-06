@@ -4,6 +4,7 @@
   "/page": "app/page.js",
   "/api/leads/route": "app/api/leads/route.js",
   "/api/leads/update/route": "app/api/leads/update/route.js",
+  "/api/leads/delete/route": "app/api/leads/delete/route.js",
   "/api/digest/route": "app/api/digest/route.js",
   "/api/submit/route": "app/api/submit/route.js"
 }

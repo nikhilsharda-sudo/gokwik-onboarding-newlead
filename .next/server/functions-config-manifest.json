@@ -1,1 +1,1 @@
-{"version":1,"functions":{"/api/digest":{},"/api/leads":{},"/api/leads/update":{},"/api/submit":{}}}
+{"version":1,"functions":{"/api/digest":{},"/api/leads/delete":{},"/api/leads":{},"/api/leads/update":{},"/api/submit":{}}}

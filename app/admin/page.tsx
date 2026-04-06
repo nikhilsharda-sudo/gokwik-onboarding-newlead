@@ -130,7 +130,7 @@ export default function AdminPage() {
 
   const updateLead = async (updated: Lead) => {
     if (updated.id === "DELETED") {
-  setLeads(prev => prev.filter(l => l.id !== lead.id));
+  setLeads(prev => prev.filter(l => l.id !== updated.id));
   setSelectedLead(null);
   return;
 }
