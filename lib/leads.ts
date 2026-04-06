@@ -1,4 +1,6 @@
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
 
 export interface Lead {
   id: string;
@@ -19,11 +21,11 @@ export interface Lead {
 }
 
 export async function saveLeadKV(lead: Lead) {
-  await kv.lpush("leads", JSON.stringify(lead));
+  await redis.lpush("leads", JSON.stringify(lead));
 }
 
 export async function getAllLeads(): Promise<Lead[]> {
-  const raw = await kv.lrange("leads", 0, -1);
+  const raw = await redis.lrange("leads", 0, -1);
   return raw.map((r) =>
     typeof r === "string" ? JSON.parse(r) : r
   ) as Lead[];
@@ -32,8 +34,8 @@ export async function getAllLeads(): Promise<Lead[]> {
 export async function updateLeadKV(updated: Lead) {
   const all = await getAllLeads();
   const newAll = all.map((l) => (l.id === updated.id ? updated : l));
-  await kv.del("leads");
+  await redis.del("leads");
   for (const l of newAll.reverse()) {
-    await kv.lpush("leads", JSON.stringify(l));
+    await redis.lpush("leads", JSON.stringify(l));
   }
 }
